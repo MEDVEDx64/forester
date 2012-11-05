@@ -7,7 +7,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1103_indev"
+#define VERSION_STR "0.1105_indev"
 
 enum
 {
