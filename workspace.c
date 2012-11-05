@@ -245,11 +245,27 @@ void WSdraw(SDL_Surface *where)
     }
 }
 
+#define TILE_NIL -1
+
 void WSresize(unsigned int w, unsigned int h)
 {
+    int *space = (int*)malloc((w*h)*sizeof(int));
+    memset(space, TILE_NIL, (w*h)*sizeof(int));
+
+    if(location.width && location.heigth && location.tiles != NULL)
+    {
+        int x,y;
+        for(x = 0; x < location.width; x++)
+        {
+            for(y = 0; y < location.heigth; y++)
+                space[y*w+x] = location.tiles[y*location.width+x];
+        }
+    }
+
     location.width = w;
     location.heigth = h;
-    location.tiles = (int*)realloc(location.tiles, sizeof(unsigned int)*(w*h));
+    free(location.tiles);
+    location.tiles = space;
 }
 
 #define CLCK_AREA 8
@@ -288,11 +304,33 @@ void WSmove(char dir)
 
 char *WSgetFileName()
 {
-    return cfname;
+    if(cfname == NULL)
+        return NULL;
+    return strdup(cfname);
 }
 
 void WSgetWH(int *destw, int *desth)
 {
     *destw = location.width;
     *desth = location.heigth;
+}
+
+void WSreset()
+{
+    if(location.name != NULL)
+    {
+        free(location.name);
+        location.name = NULL;
+    }
+
+    if(location.tiles != NULL)
+    {
+        free(location.tiles);
+        location.tiles = NULL;
+    }
+
+    location.width = 0;
+    location.heigth = 0;
+    free(cfname);
+    cfname = NULL;
 }

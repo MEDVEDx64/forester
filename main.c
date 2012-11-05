@@ -2,6 +2,7 @@
 #include <SDL/SDL_gfxPrimitives.h>
 #include <SDL/SDL_ttf.h>
 #include "gui.h"
+#include "input.h"
 #include "tiles.h"
 #include "global.h"
 #include "workspace.h"
@@ -14,16 +15,16 @@ enum
     BUTTON_NEW,
     BUTTON_LOAD,
     BUTTON_SAVE,
-    BUTTON_TOOL_MOUSE
+    BUTTON_RESIZE,
+    BUTTON_TOOL_ERASE
 };
 
-#define TOOLBUTTON 5
+#define TOOLBUTTON 6
 struct SCHbutton *buttons[160];
 unsigned int buttons_total = 0;
 static TTF_Font *ui_font = NULL;
 
 #define _1ST_LINE_H     16
-#define UI_FONT_SIZE    12
 
 SDL_Surface *screen = NULL;
 
@@ -74,6 +75,11 @@ int init()
     btn_in.col = 0x6655cc66;
     buttons[BUTTON_SAVE] = SCHbtnCreate(btn_in);
 
+    btn_in.text = "Resize";
+    btn_in.x = 153;
+    btn_in.col = 0x7766cc66;
+    buttons[BUTTON_RESIZE] = SCHbtnCreate(btn_in);
+
     btn_in.text = "Quit";
     btn_in.x = SCRW-50;
     btn_in.col = 0x88110066;
@@ -86,7 +92,7 @@ int init()
     btn_in.w = 32;
     btn_in.h = 32;
     btn_in.col = 0x3344cc66;
-    buttons[BUTTON_TOOL_MOUSE] = SCHbtnCreate(btn_in);
+    buttons[BUTTON_TOOL_ERASE] = SCHbtnCreate(btn_in);
 
     if(WSinit())
         return 1;
@@ -121,22 +127,20 @@ int init()
         buttons_total++;
     }
 
-    /** for debugging purposes **/
-    WSfread("col");
-    WSresize(30,20);
-
     printf("Alright.\n");
     return 0;
 }
 
-void drawInfo()
+void drawState()
 {
     char dat[0x1000];
     int w_ = 0;
     int h_ = 0;
     WSgetWH(&w_, &h_);
-    sprintf(dat, "FILE: %s; W:%u; H:%u",
-            (WSgetFileName() == NULL ? "none" : WSgetFileName()), w_, h_);
+    char *tmp = WSgetFileName();
+    sprintf(dat, "FILE: %s; W: %u; H: %u",
+            (tmp == NULL ? "none" : tmp), w_, h_);
+    free(tmp);
 
     SDL_Color fcol;
     fcol.r = 0xaa;
@@ -150,6 +154,12 @@ void drawInfo()
 
     SDL_BlitSurface(fs, NULL, screen, &r);
     SDL_FreeSurface(fs);
+
+    fs = TTF_RenderText_Blended(ui_font, "Use arrow keys to move the workspace | 'P' to hide buttons", fcol);
+    r.x = 2;
+    r.y = SCRH-UI_FONT_SIZE-4;
+    SDL_BlitSurface(fs, NULL, screen, &r);
+    SDL_FreeSurface(fs);
 }
 
 #define KST_NONE        0
@@ -157,15 +167,19 @@ void drawInfo()
 #define KST_PRESSED     2
 #define KST_UP          3
 
+#define REDSCR_TIME     3
+
 int main(int argc, char *argv[])
 {
     if(init()) return 1;
     int is_running = 1;
     char keyst[0x200];
     memset(&keyst, 0, 0x200);
+    int _drawRedScreen = 0;
 
     while(is_running)
     {
+        if(_drawRedScreen) _drawRedScreen --;
         boxColor(screen, 0, 0, SCRW-1, SCRH-1, 0xff);
         WSdraw(screen);
 
@@ -186,9 +200,12 @@ int main(int argc, char *argv[])
         SDL_Event ev;
         while(SDL_PollEvent(&ev))
         {
-            for(i = 0; i < buttons_total; i++)
-                SCHbtnLoop(buttons[i], &ev);
-            WSloop(&ev);
+            if(!INisActive())
+            {
+                for(i = 0; i < buttons_total; i++)
+                    SCHbtnLoop(buttons[i], &ev);
+                WSloop(&ev);
+            }
 
             /* Kbd handling */
             switch(ev.type)
@@ -198,25 +215,100 @@ int main(int argc, char *argv[])
             }
         }
 
-        /* Workspace movement */
-        if(keyst[SDLK_UP])      WSmove(DIR_UP);
-        if(keyst[SDLK_RIGHT])   WSmove(DIR_RIGHT);
-        if(keyst[SDLK_DOWN])    WSmove(DIR_DOWN);
-        if(keyst[SDLK_LEFT])    WSmove(DIR_LEFT);
-
-        /* SCHbuttons proc */
-        if(SCHgetBtnState(buttons[BUTTON_QUIT])&BTNSTATE_CLICKED)
-            is_running = 0;
-        int a;
-        for(a = 0; a < WSgetToolsCount(); a++)
+        if(INisActive())
         {
-            if(SCHgetBtnState(buttons[TOOLBUTTON+a])&BTNSTATE_CLICKED)
-                WStoolSet(a);
+
+            int s,v;
+            for(s = 0; s < 0x200; s++)
+            {
+                if(keyst[s] == KST_DOWN)
+                {
+                    if(!INsendKey(s))
+                    {
+                        for(v = 0; v < TOOLBUTTON; v++)
+                        {
+                            if(SCHgetBtnState(buttons[v])&BTNSTATE_CLICKED)
+                            {
+                                char *t = INgetResult();
+
+                                if(v == BUTTON_LOAD)
+                                {
+                                    if(WSfread(t))
+                                        _drawRedScreen = REDSCR_TIME;
+                                }
+
+                                else if(v == BUTTON_SAVE)
+                                {
+                                    if(WSfwrite(t))
+                                        _drawRedScreen = REDSCR_TIME;
+                                }
+
+                                else if(v == BUTTON_RESIZE)
+                                {
+                                    unsigned int nw, nh;
+                                    if(sscanf(t, "%u %u", &nw, &nh) == 2)
+                                        WSresize(nw, nh);
+                                    else
+                                        _drawRedScreen = REDSCR_TIME;
+                                }
+
+                                free(t);
+                                SCHbtnLoop(buttons[v], NULL);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        else
+        {
+
+            /* Workspace movement */
+            if(keyst[SDLK_UP])      WSmove(DIR_UP);
+            if(keyst[SDLK_RIGHT])   WSmove(DIR_RIGHT);
+            if(keyst[SDLK_DOWN])    WSmove(DIR_DOWN);
+            if(keyst[SDLK_LEFT])    WSmove(DIR_LEFT);
+
+            /* SCHbuttons proc */
+            if(SCHgetBtnState(buttons[BUTTON_QUIT])&BTNSTATE_CLICKED)
+                is_running = 0;
+
+            if(SCHgetBtnState(buttons[BUTTON_NEW])&BTNSTATE_CLICKED)
+                WSreset();
+
+            if(SCHgetBtnState(buttons[BUTTON_LOAD])&BTNSTATE_CLICKED)
+            {
+                char *tmp = WSgetFileName();
+                INstart("Load a file:", tmp);
+                free(tmp);
+            }
+
+            if(SCHgetBtnState(buttons[BUTTON_SAVE])&BTNSTATE_CLICKED)
+            {
+                char *tmp = WSgetFileName();
+                INstart("Save to file:", tmp);
+                free(tmp);
+            }
+
+            int a;
+            for(a = 0; a < WSgetToolsCount(); a++)
+            {
+                if(SCHgetBtnState(buttons[TOOLBUTTON+a])&BTNSTATE_CLICKED)
+                    WStoolSet(a);
+            }
+
         }
 
-        drawInfo();
+        drawState();
+        if(INisActive())
+            INdraw(screen, ui_font);
+
+        if(_drawRedScreen)
+            boxColor(screen, 0, 0, SCRW-1, SCRH-1, 0xcc0000aa);
         SDL_Flip(screen);
     }
 
+    printf("Shuttin` down.\n");
     return 0;
 }

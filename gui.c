@@ -158,6 +158,12 @@ int isrect(int x, int y, struct SCHbutton *btn)
 int buttons_hover = 0;
 void SCHbtnLoop(struct SCHbutton *btn, SDL_Event *event)
 {
+    if(event == NULL)
+    {
+        btn->flags &= (~(BTNSTATE_HOVER|BTNSTATE_CLICKED));
+        return;
+    }
+
     if(isrect(event->button.x, event->button.y, btn))
     {
         buttons_hover = 1;

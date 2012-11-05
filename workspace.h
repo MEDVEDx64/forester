@@ -20,5 +20,6 @@ void    WSresize(unsigned int w, unsigned int h);
 char    *WSgetFileName();
 void    WSmove(char dir);
 void    WSgetWH(int *destw, int *desth);
+void    WSreset();
 
 #endif /* workspace.h */
