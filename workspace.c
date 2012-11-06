@@ -325,7 +325,7 @@ void WSgetWH(int *destw, int *desth)
     *desth = location.heigth;
 }
 
-#define DEF_NAME    "location"
+#define DEF_NAME    "untitled"
 
 void WSreset()
 {

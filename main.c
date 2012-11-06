@@ -20,7 +20,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1.06_alpha.1"
+#define VERSION_STR "0.1.06_alpha.2"
 
 enum
 {
@@ -95,7 +95,7 @@ int init()
     buttons[BUTTON_RESIZE] = SCHbtnCreate(btn_in);
 
     btn_in.text = "Quit";
-    btn_in.x = SCRW-50;
+    btn_in.x = SCRW-51;
     btn_in.col = 0x88110066;
     buttons[BUTTON_QUIT] = SCHbtnCreate(btn_in);
 
@@ -349,6 +349,12 @@ int main(int argc, char *argv[])
                 {
                     if(SCHgetBtnState(buttons[TOOLBUTTON+a])&BTNSTATE_CLICKED)
                         tool = a;
+                }
+
+                for(a = SDLK_0; a <= SDLK_9; a++)
+                {
+                    if(keyst[a] == KST_DOWN)
+                        tool = a - SDLK_0;
                 }
 
             }
