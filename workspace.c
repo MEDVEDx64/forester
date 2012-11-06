@@ -221,8 +221,6 @@ void WStoolSet(int tool_id)
 static int ws_offsetx = 0;
 static int ws_offsety = 0;
 
-#define GRID_COLOR      0xaaff
-
 void WSdraw(SDL_Surface *where)
 {
     if(location.tiles == NULL) return;
@@ -338,6 +336,11 @@ void WSreset()
     }
 
     location.name = (char*)malloc(strlen(DEF_NAME));
+
+    /* DO NOT TOUCH! or crash (on -O2)! */
+    void *magic = malloc(1);
+    free(magic);
+
     strcpy(location.name, DEF_NAME);
 
     if(location.tiles != NULL)

@@ -1,3 +1,16 @@
+/**
+
+    FORESTER
+
+    An alternative location editor
+    for the 'Forest' game project,
+    with blackjack and hookers.
+
+    MEDVEDx64, Nov. 2012.
+    GPL.
+
+*/
+
 #include <stdio.h>
 #include <SDL/SDL_gfxPrimitives.h>
 #include <SDL/SDL_ttf.h>
@@ -7,7 +20,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1106_indev"
+#define VERSION_STR "0.1.06_alpha"
 
 enum
 {
@@ -349,6 +362,21 @@ int main(int argc, char *argv[])
         if(_drawRedScreen)
             boxColor(screen, 0, 0, SCRW-1, SCRH-1, 0xcc0000aa);
         SDL_Flip(screen);
+
+        /* FPS controller */
+        static unsigned int fps = 0;
+        static unsigned int now = 0;
+        static unsigned int then = 0;
+        static unsigned int frames = 0;
+
+#define FPS 60 /* must be > 0 */
+
+        now = SDL_GetTicks();
+        if (now > then) fps = (++frames*1000)/(now-then);
+        if (fps >= FPS) SDL_Delay(1000/FPS);
+
+#undef FPS
+
     }
 
     printf("Shuttin` down.\n");
