@@ -41,10 +41,7 @@ extern "C" {
 struct SCHbutton    *SCHbtnCreate(struct SCHbtnInfo btninfo);
 void                SCHbtnDraw(struct SCHbutton *who, SDL_Surface *where);
 void                SCHbtnLoop(struct SCHbutton *btn, SDL_Event *event);
-//int                 SCHisBtnExist(struct SCHbutton *btn);
 int                 SCHgetBtnState(struct SCHbutton *btn);
-void                SCHbtnToggleVisibility(struct SCHbutton *btn, char what);
-int                 SCHisAnyBtnHover();
 
 #define                                                                     \
 SCHBTNFREI(btn_ptr)                                                         \

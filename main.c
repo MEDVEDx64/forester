@@ -87,7 +87,7 @@ int init()
     buttons[BUTTON_QUIT] = SCHbtnCreate(btn_in);
 
     btn_in.flags = BTNV_BODY|BTNV_GLYPH;
-    btn_in.glyphFN = "/usr/share/icons/default.kde4/32x32/actions/edit-clear.png";
+    btn_in.glyphFN = ICN_ERASE;
     btn_in.x = 0;
     btn_in.y = 17;
     btn_in.w = 32;
@@ -144,9 +144,12 @@ void drawState()
     int w_ = 0;
     int h_ = 0;
     WSgetWH(&w_, &h_);
+    int atx = 0;
+    int aty = 0;
+    WSgetMousePos(&atx, &aty);
     char *tmp = WSgetFileName();
-    sprintf(dat, "FILE: %s; W: %u; H: %u",
-            (tmp == NULL ? "none" : tmp), w_, h_);
+    sprintf(dat, "FILE: %s; W: %u; H: %u; BRUSH: %d; @%d:%d",
+            (tmp == NULL ? "none" : tmp), w_, h_, tool, atx, aty);
     free(tmp);
 
     SDL_Color fcol;
@@ -326,13 +329,13 @@ int main(int argc, char *argv[])
                 }
 
                 if(SCHgetBtnState(buttons[BUTTON_TOOL_ERASE])&BTNSTATE_CLICKED)
-                    WStoolSet(-1);
+                    tool = -1;
 
                 int a;
                 for(a = 0; a < WSgetToolsCount(); a++)
                 {
                     if(SCHgetBtnState(buttons[TOOLBUTTON+a])&BTNSTATE_CLICKED)
-                        WStoolSet(a);
+                        tool = a;
                 }
 
             }

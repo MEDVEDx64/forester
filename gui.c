@@ -155,7 +155,6 @@ int isrect(int x, int y, struct SCHbutton *btn)
     return 0;
 }
 
-int buttons_hover = 0;
 void SCHbtnLoop(struct SCHbutton *btn, SDL_Event *event)
 {
     if(event == NULL)
@@ -166,7 +165,6 @@ void SCHbtnLoop(struct SCHbutton *btn, SDL_Event *event)
 
     if(isrect(event->button.x, event->button.y, btn))
     {
-        buttons_hover = 1;
         btn->flags |= BTNSTATE_HOVER;
 
         if(event->type == SDL_MOUSEBUTTONDOWN)
@@ -175,25 +173,10 @@ void SCHbtnLoop(struct SCHbutton *btn, SDL_Event *event)
             btn->flags &= (~BTNSTATE_CLICKED);
     }
     else
-    {
         btn->flags &= (~BTNSTATE_HOVER);
-
-        if(buttons_hover)
-            buttons_hover = 0;
-    }
 }
 
 int SCHgetBtnState(struct SCHbutton *btn)
 {
     return (BTNSTATE_CLICKED|BTNSTATE_HOVER)&btn->flags;
-}
-
-void SCHbtnToggleVisibility(struct SCHbutton *btn, char what)
-{
-    // not implemented yet!
-}
-
-int SCHisAnyBtnHover()
-{
-    return buttons_hover;
 }

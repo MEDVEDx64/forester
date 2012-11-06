@@ -194,7 +194,7 @@ int WSfwrite(const char *fn)
     int i;
     for(i = 0; i < (location.width*location.heigth); i++)
     {
-        fprintf(f, "%u", location.tiles[i]);
+        fprintf(f, "%d", location.tiles[i]);
         if(i == (location.width*location.heigth)-1)
             fprintf(f, "\n");
         else
@@ -260,9 +260,9 @@ void WSresize(unsigned int w, unsigned int h)
     if(location.width && location.heigth && location.tiles != NULL)
     {
         int x,y;
-        for(x = 0; x < location.width; x++)
+        for(x = 0; x < location.width && x < w; x++)
         {
-            for(y = 0; y < location.heigth; y++)
+            for(y = 0; y < location.heigth && y < h; y++)
                 space[y*w+x] = location.tiles[y*location.width+x];
         }
     }
@@ -274,6 +274,8 @@ void WSresize(unsigned int w, unsigned int h)
 }
 
 #define CLCK_AREA 8
+static int at_x = 0;
+static int at_y = 0;
 
 void WSloop(SDL_Event *event)
 {
@@ -288,10 +290,15 @@ void WSloop(SDL_Event *event)
 #define CLCK_RECT_Y1 y*(TILE_H/2)+ws_offsety+CLCK_AREA
 #define CLCK_RECT_Y2 y*(TILE_H/2)+ws_offsety+TILE_H-CLCK_AREA
 
-            if(event->button.button == SDL_BUTTON_LEFT &&
-               event->button.x > CLCK_RECT_X1 && event->button.x < CLCK_RECT_X2 &&
+            if(event->button.x > CLCK_RECT_X1 && event->button.x < CLCK_RECT_X2 &&
                event->button.y > CLCK_RECT_Y1 && event->button.y < CLCK_RECT_Y2)
-                    location.tiles[y*location.width+x] = tool;
+               {
+                   if(event->button.button == SDL_BUTTON_LEFT)
+                        location.tiles[y*location.width+x] = tool;
+                    at_x = x;
+                    at_y = y;
+                    break;
+               }
 
         }
     }
@@ -343,4 +350,10 @@ void WSreset()
     location.heigth = 0;
     free(cfname);
     cfname = NULL;
+}
+
+void WSgetMousePos(int *destx, int *desty)
+{
+    *destx = at_x;
+    *desty = at_y;
 }
