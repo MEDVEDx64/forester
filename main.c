@@ -20,7 +20,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1.06_alpha"
+#define VERSION_STR "0.1.06_alpha.1"
 
 enum
 {

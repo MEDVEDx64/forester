@@ -335,12 +335,7 @@ void WSreset()
         location.name = NULL;
     }
 
-    location.name = (char*)malloc(strlen(DEF_NAME));
-
-    /* DO NOT TOUCH! or crash (on -O2)! */
-    void *magic = malloc(1);
-    free(magic);
-
+    location.name = (char*)malloc(strlen(DEF_NAME)+1);
     strcpy(location.name, DEF_NAME);
 
     if(location.tiles != NULL)
