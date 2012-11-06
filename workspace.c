@@ -241,6 +241,10 @@ void WSdraw(SDL_Surface *where)
             if(location.tiles[y*location.width+x] < n_tiles && location.tiles[y*location.width+x] >= 0)
                 SDL_BlitSurface(tiles[location.tiles[y*location.width+x]].tile,
                                 NULL, where, &rect);
+            else
+            {
+                SDL_BlitSurface(nil_tile, NULL, where, &rect);
+            }
         }
     }
 }
@@ -249,6 +253,7 @@ void WSdraw(SDL_Surface *where)
 
 void WSresize(unsigned int w, unsigned int h)
 {
+    if(!w||!h) return;
     int *space = (int*)malloc((w*h)*sizeof(int));
     memset(space, TILE_NIL, (w*h)*sizeof(int));
 
@@ -315,6 +320,8 @@ void WSgetWH(int *destw, int *desth)
     *desth = location.heigth;
 }
 
+#define DEF_NAME    "location"
+
 void WSreset()
 {
     if(location.name != NULL)
@@ -322,6 +329,9 @@ void WSreset()
         free(location.name);
         location.name = NULL;
     }
+
+    location.name = (char*)malloc(strlen(DEF_NAME));
+    strcpy(location.name, DEF_NAME);
 
     if(location.tiles != NULL)
     {

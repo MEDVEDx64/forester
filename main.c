@@ -7,7 +7,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1105_indev"
+#define VERSION_STR "0.1106_indev"
 
 enum
 {
@@ -20,7 +20,8 @@ enum
 };
 
 #define TOOLBUTTON 6
-struct SCHbutton *buttons[160];
+#define BTN_MAX 0x100
+struct SCHbutton *buttons[BTN_MAX];
 unsigned int buttons_total = 0;
 static TTF_Font *ui_font = NULL;
 
@@ -86,7 +87,7 @@ int init()
     buttons[BUTTON_QUIT] = SCHbtnCreate(btn_in);
 
     btn_in.flags = BTNV_BODY|BTNV_GLYPH;
-    btn_in.glyphFN = "/usr/share/icons/default.kde4/32x32/actions/edit-select.png";
+    btn_in.glyphFN = "/usr/share/icons/default.kde4/32x32/actions/edit-clear.png";
     btn_in.x = 0;
     btn_in.y = 17;
     btn_in.w = 32;
@@ -114,6 +115,12 @@ int init()
     int offsetx = 0;
     for(id = 0; id < toolc; id++)
     {
+        if(buttons_total >= BTN_MAX-1)
+        {
+            printf("Too much buttons!\n");
+            break;
+        }
+
         btn_in.surfptr = tiles[id].tile;
         btn_in.x = (id-offsetx)*TBTN_W+id;
         if(btn_in.x+btn_in.w > SCRW)
@@ -172,7 +179,17 @@ void drawState()
 int main(int argc, char *argv[])
 {
     if(init()) return 1;
+
+    if(argc < 2)
+        WSreset();
+    else
+    {
+        if(WSfread(argv[1]))
+            WSreset();
+    }
+
     int is_running = 1;
+    int is_buttons_visible = 1;
     char keyst[0x200];
     memset(&keyst, 0, 0x200);
     int _drawRedScreen = 0;
@@ -184,9 +201,12 @@ int main(int argc, char *argv[])
         WSdraw(screen);
 
         int i;
-        for(i = 0; i < buttons_total; i++)
+        if(is_buttons_visible)
         {
-            SCHbtnDraw(buttons[i],screen);
+            for(i = 0; i < buttons_total; i++)
+            {
+                SCHbtnDraw(buttons[i],screen);
+            }
         }
 
         int s; for(s = 0; s < 0x200; s++)
@@ -245,8 +265,8 @@ int main(int argc, char *argv[])
 
                                 else if(v == BUTTON_RESIZE)
                                 {
-                                    unsigned int nw, nh;
-                                    if(sscanf(t, "%u %u", &nw, &nh) == 2)
+                                    int nw, nh;
+                                    if(sscanf(t, "%u %u", &nw, &nh) == 2 && (nw > 0 && nh > 0))
                                         WSresize(nw, nh);
                                     else
                                         _drawRedScreen = REDSCR_TIME;
@@ -270,32 +290,51 @@ int main(int argc, char *argv[])
             if(keyst[SDLK_DOWN])    WSmove(DIR_DOWN);
             if(keyst[SDLK_LEFT])    WSmove(DIR_LEFT);
 
-            /* SCHbuttons proc */
-            if(SCHgetBtnState(buttons[BUTTON_QUIT])&BTNSTATE_CLICKED)
-                is_running = 0;
+            /* Toggling buttons visibility */
+            if(keyst[SDLK_p] == KST_DOWN)
+                is_buttons_visible =! is_buttons_visible;
 
-            if(SCHgetBtnState(buttons[BUTTON_NEW])&BTNSTATE_CLICKED)
-                WSreset();
-
-            if(SCHgetBtnState(buttons[BUTTON_LOAD])&BTNSTATE_CLICKED)
+            if(is_buttons_visible)
             {
-                char *tmp = WSgetFileName();
-                INstart("Load a file:", tmp);
-                free(tmp);
-            }
 
-            if(SCHgetBtnState(buttons[BUTTON_SAVE])&BTNSTATE_CLICKED)
-            {
-                char *tmp = WSgetFileName();
-                INstart("Save to file:", tmp);
-                free(tmp);
-            }
+                /* SCHbuttons proc */
+                if(SCHgetBtnState(buttons[BUTTON_QUIT])&BTNSTATE_CLICKED)
+                    is_running = 0;
 
-            int a;
-            for(a = 0; a < WSgetToolsCount(); a++)
-            {
-                if(SCHgetBtnState(buttons[TOOLBUTTON+a])&BTNSTATE_CLICKED)
-                    WStoolSet(a);
+                if(SCHgetBtnState(buttons[BUTTON_NEW])&BTNSTATE_CLICKED)
+                    WSreset();
+
+                if(SCHgetBtnState(buttons[BUTTON_LOAD])&BTNSTATE_CLICKED)
+                {
+                    char *tmp = WSgetFileName();
+                    INstart("Load a file:", tmp);
+                    free(tmp);
+                }
+
+                if(SCHgetBtnState(buttons[BUTTON_SAVE])&BTNSTATE_CLICKED)
+                {
+                    char *tmp = WSgetFileName();
+                    INstart("Save to file:", tmp);
+                    free(tmp);
+                }
+
+                if(SCHgetBtnState(buttons[BUTTON_RESIZE])&BTNSTATE_CLICKED)
+                {
+                    char *tmp = WSgetFileName();
+                    INstart("Resize (w h):", NULL);
+                    free(tmp);
+                }
+
+                if(SCHgetBtnState(buttons[BUTTON_TOOL_ERASE])&BTNSTATE_CLICKED)
+                    WStoolSet(-1);
+
+                int a;
+                for(a = 0; a < WSgetToolsCount(); a++)
+                {
+                    if(SCHgetBtnState(buttons[TOOLBUTTON+a])&BTNSTATE_CLICKED)
+                        WStoolSet(a);
+                }
+
             }
 
         }

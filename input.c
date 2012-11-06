@@ -91,8 +91,8 @@ char *INgetResult()
     return strdup(in_str);
 }
 
-#define IN_BGCOL                0x44
-#define IN_BGCOL_ENTRY          0x4444
+#define IN_BGCOL                0x88
+#define IN_BGCOL_ENTRY          0x8888
 #define IN_TITLE_FONTC_R        0xaa
 #define IN_TITLE_FONTC_G        0xaa
 #define IN_TITLE_FONTC_B        0xaa
@@ -123,7 +123,7 @@ void INdraw(SDL_Surface *where, TTF_Font *font)
         if(tx != NULL)
         {
             r.x = SCRW/2-tx->w/2;
-            r.y = SCRH/2-tx->h;
+            r.y = SCRH/2-tx->h-1;
             SDL_BlitSurface(tx, NULL, where, &r);
             SDL_FreeSurface(tx);
         }
@@ -135,7 +135,7 @@ void INdraw(SDL_Surface *where, TTF_Font *font)
         if(tx != NULL)
         {
             r.x = SCRW/2-tx->w/2;
-            r.y = SCRH/2;
+            r.y = SCRH/2-1;
             SDL_BlitSurface(tx, NULL, where, &r);
             SDL_FreeSurface(tx);
         }

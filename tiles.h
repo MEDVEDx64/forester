@@ -2,8 +2,8 @@
 #define FILES_H_INCLUDED
 
 #include <SDL/SDL.h>
-#define ST_FILE "data/statics"
-#define TILEDIR "data/tiles/"
+#define ST_FILE WORKDIR"statics"
+#define TILEDIR WORKDIR"tiles/"
 #define EXTEN   ".bmp"
 
 typedef struct
@@ -17,6 +17,7 @@ typedef struct
 tilerecord_t;
 
 extern tilerecord_t *tiles;
+extern SDL_Surface *nil_tile;
 
 /* returns count of loaded tiles */
 /* -1 on fail */

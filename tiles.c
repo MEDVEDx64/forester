@@ -6,12 +6,25 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <SDL/SDL_image.h>
 #include <SDL/SDL_rotozoom.h>
 
 tilerecord_t *tiles = NULL;
+SDL_Surface *nil_tile = NULL;
+#define NILT_FN TILEDIR"nil.bmp"
 
 int TilesLoad(const char *fname)
 {
+    nil_tile = IMG_Load(NILT_FN);
+    if(nil_tile == NULL)
+    {
+        printf("File`s offline: %s\n", NILT_FN);
+        return -1;
+    }
+    SDL_Surface *t = SDL_DisplayFormatAlpha(nil_tile);
+    SDL_FreeSurface(nil_tile);
+    nil_tile = t;
+
     FILE *f;
     if((f = fopen(fname, "r")) == NULL)
     {
@@ -67,7 +80,7 @@ file have something wrong aboard (comments, etc.). Proceeding may result in faul
         {
             for(y = 0; y < tiles[current_tile].tile->h; y++)
             {
-                if(!(getPixel32(tiles[current_tile].tile, x, y)&0xff))
+                if(!(getPixel32(tiles[current_tile].tile, x, y)&0xffffff))
                     putPixel32(tiles[current_tile].tile, x, y, 0);
             }
         }
