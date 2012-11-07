@@ -102,7 +102,7 @@ char *INgetResult()
 
 void INdraw(SDL_Surface *where, TTF_Font *font)
 {
-    boxColor(where, 0, 0, SCRW-1, SCRH-1, IN_BGCOL);
+    boxColor(where, 0, 0, scr_w_-1, scr_h_-1, IN_BGCOL);
     SDL_Color tcol;
     tcol.r = IN_TITLE_FONTC_R;
     tcol.g = IN_TITLE_FONTC_G;
@@ -112,7 +112,7 @@ void INdraw(SDL_Surface *where, TTF_Font *font)
     tcol_entry.g = IN_ENTRY_FONTC_G;
     tcol_entry.b = IN_ENTRY_FONTC_B;
 
-    boxColor(where, 0, SCRH/2, SCRW-1, SCRH/2+UI_FONT_SIZE, IN_BGCOL_ENTRY);
+    boxColor(where, 0, scr_h_/2, scr_w_-1, scr_h_/2+UI_FONT_SIZE, IN_BGCOL_ENTRY);
 
     SDL_Surface *tx = NULL;
     SDL_Rect r;
@@ -122,8 +122,8 @@ void INdraw(SDL_Surface *where, TTF_Font *font)
         tx = TTF_RenderText_Blended(font, in_title, tcol);
         if(tx != NULL)
         {
-            r.x = SCRW/2-tx->w/2;
-            r.y = SCRH/2-tx->h-1;
+            r.x = scr_w_/2-tx->w/2;
+            r.y = scr_h_/2-tx->h-1;
             SDL_BlitSurface(tx, NULL, where, &r);
             SDL_FreeSurface(tx);
         }
@@ -134,8 +134,8 @@ void INdraw(SDL_Surface *where, TTF_Font *font)
         tx = TTF_RenderText_Blended(font, in_str, tcol_entry);
         if(tx != NULL)
         {
-            r.x = SCRW/2-tx->w/2;
-            r.y = SCRH/2-1;
+            r.x = scr_w_/2-tx->w/2;
+            r.y = scr_h_/2-1;
             SDL_BlitSurface(tx, NULL, where, &r);
             SDL_FreeSurface(tx);
         }

@@ -2,15 +2,20 @@
 #define _GLOBAL_H
 
 #ifdef DIST
-    #define WORKDIR         "/usr/share/forester/data/"
+    #define BASE_DIR         "/usr/share/forester/"
 #else
-    #define WORKDIR         "data/"
+    #define BASE_DIR         "./"
 #endif
+#define DATA_DIR         BASE_DIR"data/"
 
-#define ICN_ERASE       WORKDIR"edit-clear.png"
-#define FONT_FN         WORKDIR"DroidSansMono.ttf"
-#define SCRW            960
-#define SCRH            512
+extern unsigned short scr_w_;
+extern unsigned short scr_h_;
+
+#define ICN_ERASE       DATA_DIR"edit-clear.png"
+#define FONT_FN         DATA_DIR"DroidSansMono.ttf"
+#define CFG_FN          BASE_DIR"config"
+#define SCRW_D          1024
+#define SCRH_D          680
 #define TILE_W          48
 #define TILE_H          32
 #define UI_FONT_SIZE    12

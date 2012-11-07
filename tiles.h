@@ -2,8 +2,8 @@
 #define FILES_H_INCLUDED
 
 #include <SDL/SDL.h>
-#define ST_FILE WORKDIR"statics"
-#define TILEDIR WORKDIR"tiles/"
+#define ST_FILE DATA_DIR"statics"
+#define TILEDIR DATA_DIR"tiles/"
 #define EXTEN   ".bmp"
 
 typedef struct

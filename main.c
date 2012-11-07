@@ -12,6 +12,8 @@
 */
 
 #include <stdio.h>
+#include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
 #include <SDL/SDL_gfxPrimitives.h>
 #include <SDL/SDL_ttf.h>
 #include "gui.h"
@@ -21,6 +23,9 @@
 #include "workspace.h"
 
 #define VERSION_STR "0.1.07_alpha"
+
+unsigned short scr_w_ = SCRW_D;
+unsigned short scr_h_ = SCRH_D;
 
 enum
 {
@@ -42,16 +47,66 @@ static TTF_Font *ui_font = NULL;
 
 SDL_Surface *screen = NULL;
 
+void ParseCfgFile(const char *fname)
+{
+    xmlDocPtr doc;
+    xmlNodePtr cur;
+    doc = xmlParseFile(fname);
+
+    if (doc == NULL)
+    {
+        printf("%s(): %s not parsed successfully, applying defaults.\n", __FUNCTION__, fname);
+        return;
+    }
+
+    cur = xmlDocGetRootElement(doc);
+    if (cur == NULL)
+    {
+        printf("%s(): %s seems to be empty.\n", __FUNCTION__, fname);
+        return;
+    }
+
+    if (xmlStrcmp(cur->name, (const xmlChar*) "screen"))
+    {
+        printf("%s(): 'screen' not found in %s.\n", __FUNCTION__, fname);
+        return;
+    }
+
+    cur = cur->xmlChildrenNode;
+    while (cur != NULL)
+    {
+        if (!xmlStrcmp(cur->name, (const xmlChar *)"width"))
+        {
+            xmlChar *str = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            scr_w_ = atoi((char*)str);
+            xmlFree(str);
+        }
+
+        if (!xmlStrcmp(cur->name, (const xmlChar *)"height"))
+        {
+            xmlChar *str = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            scr_h_ = atoi((char*)str);
+            xmlFree(str);
+        }
+
+        cur = cur->next;
+    }
+
+    xmlFreeDoc(doc);
+}
+
 int init()
 {
     printf("Starting Forester "VERSION_STR"...\n");
+
+    ParseCfgFile(CFG_FN);
     if(SDL_Init(SDL_INIT_EVERYTHING))
     {
         printf("SDL_Init() fail.\n");
         return 1;
     }
 
-    screen = SDL_SetVideoMode(SCRW, SCRH, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
+    screen = SDL_SetVideoMode(scr_w_?scr_w_:SCRW_D, scr_h_?scr_h_:SCRH_D, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
     if(screen == NULL)
     {
         printf("Couldn`t create screen.\n");
@@ -98,7 +153,7 @@ int init()
     buttons[BUTTON_RESIZE] = SCHbtnCreate(btn_in);
 
     btn_in.text = "Quit";
-    btn_in.x = SCRW-51;
+    btn_in.x = scr_w_-51;
     btn_in.col = 0x88110066;
     buttons[BUTTON_QUIT] = SCHbtnCreate(btn_in);
 
@@ -139,7 +194,7 @@ int init()
 
         btn_in.surfptr = tiles[id].tile;
         btn_in.x = (id-offsetx)*TBTN_W+id;
-        if(btn_in.x+btn_in.w > SCRW)
+        if(btn_in.x+btn_in.w > scr_w_)
         {
             offsetx = id;
             btn_in.y += TBTN_H+1;
@@ -175,7 +230,7 @@ void drawState()
     SDL_Surface *fs = TTF_RenderText_Blended(ui_font, dat, fcol);
 
     SDL_Rect r;
-    r.x = SCRW/2-fs->w/2;
+    r.x = scr_w_/2-fs->w/2;
     r.y = 1;
 
     SDL_BlitSurface(fs, NULL, screen, &r);
@@ -183,7 +238,7 @@ void drawState()
 
     fs = TTF_RenderText_Blended(ui_font, "Use arrow keys to move the workspace | 'P' to hide buttons", fcol);
     r.x = 2;
-    r.y = SCRH-UI_FONT_SIZE-4;
+    r.y = scr_h_-UI_FONT_SIZE-4;
     SDL_BlitSurface(fs, NULL, screen, &r);
     SDL_FreeSurface(fs);
 }
@@ -216,7 +271,7 @@ int main(int argc, char *argv[])
     while(is_running)
     {
         if(_drawRedScreen) _drawRedScreen --;
-        boxColor(screen, 0, 0, SCRW-1, SCRH-1, 0xff);
+        boxColor(screen, 0, 0, scr_w_-1, scr_h_-1, 0xff);
         WSdraw(screen);
 
         int i;
@@ -369,7 +424,7 @@ int main(int argc, char *argv[])
             INdraw(screen, ui_font);
 
         if(_drawRedScreen)
-            boxColor(screen, 0, 0, SCRW-1, SCRH-1, 0xcc0000aa);
+            boxColor(screen, 0, 0, scr_w_-1, scr_h_-1, 0xcc0000aa);
         SDL_Flip(screen);
 
         /* FPS controller */
