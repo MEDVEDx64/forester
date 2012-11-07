@@ -22,10 +22,13 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1.07_alpha"
+#define VERSION_STR "0.1.07_alpha.1"
 
 unsigned short scr_w_ = SCRW_D;
 unsigned short scr_h_ = SCRH_D;
+
+unsigned short tile_w_ = TILEW_D;
+unsigned short tile_h_ = TILEH_D;
 
 enum
 {
@@ -66,26 +69,40 @@ void ParseCfgFile(const char *fname)
         return;
     }
 
-    if (xmlStrcmp(cur->name, (const xmlChar*) "screen"))
+    if (xmlStrcmp(cur->name, (const xmlChar*) "config"))
     {
-        printf("%s(): 'screen' not found in %s.\n", __FUNCTION__, fname);
+        printf("%s(): 'config' not found in %s.\n", __FUNCTION__, fname);
         return;
     }
 
     cur = cur->xmlChildrenNode;
     while (cur != NULL)
     {
-        if (!xmlStrcmp(cur->name, (const xmlChar *)"width"))
+        if (!xmlStrcmp(cur->name, (const xmlChar *)"screen-width"))
         {
             xmlChar *str = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             scr_w_ = atoi((char*)str);
             xmlFree(str);
         }
 
-        if (!xmlStrcmp(cur->name, (const xmlChar *)"height"))
+        if (!xmlStrcmp(cur->name, (const xmlChar *)"screen-height"))
         {
             xmlChar *str = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             scr_h_ = atoi((char*)str);
+            xmlFree(str);
+        }
+
+        if (!xmlStrcmp(cur->name, (const xmlChar *)"tile-width"))
+        {
+            xmlChar *str = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            tile_w_ = atoi((char*)str) ? atoi((char*)str) : TILEW_D;
+            xmlFree(str);
+        }
+
+        if (!xmlStrcmp(cur->name, (const xmlChar *)"tile-height"))
+        {
+            xmlChar *str = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            tile_h_ = atoi((char*)str) ? atoi((char*)str) : TILEH_D;
             xmlFree(str);
         }
 
@@ -174,16 +191,17 @@ int init()
 
     /* Tool buttons */
 
-#define TBTN_W 50
-#define TBTN_H 35
+#define TBTN_OFFSET 4
+#define TBTN_W tile_w_+TBTN_OFFSET
+#define TBTN_H tile_h_+TBTN_OFFSET
 
     btn_in.col = 0x22773366;
     btn_in.w = TBTN_W;
     btn_in.h = TBTN_H;
+    btn_in.x = -TBTN_W-9; /* WHY 9 ?!? */
     btn_in.y = 50;
 
-    int id = 0;
-    int offsetx = 0;
+    int id;
     for(id = 0; id < toolc; id++)
     {
         if(buttons_total >= BTN_MAX-1)
@@ -193,10 +211,9 @@ int init()
         }
 
         btn_in.surfptr = tiles[id].tile;
-        btn_in.x = (id-offsetx)*TBTN_W+id;
+        btn_in.x += TBTN_W+1;
         if(btn_in.x+btn_in.w > scr_w_)
         {
-            offsetx = id;
             btn_in.y += TBTN_H+1;
             btn_in.x = 0;
         }

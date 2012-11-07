@@ -23,7 +23,9 @@ int TilesLoad(const char *fname)
     }
     SDL_Surface *t = SDL_DisplayFormatAlpha(nil_tile);
     SDL_FreeSurface(nil_tile);
-    nil_tile = t;
+    SDL_Surface *s = zoomSurface(t, (double)tile_w_/t->w, (double)tile_h_/t->h, SMOOTHING_OFF);
+    SDL_FreeSurface(t);
+    nil_tile = s;
 
     FILE *f;
     if((f = fopen(fname, "r")) == NULL)
@@ -85,10 +87,10 @@ file have something wrong aboard (comments, etc.). Proceeding may result in faul
             }
         }
 
-        if(tiles[current_tile].tile->w > TILE_W || tiles[current_tile].tile->h > TILE_H)
+        if(tiles[current_tile].tile->w != tile_w_ || tiles[current_tile].tile->h != tile_h_)
         {
             SDL_Surface *tmp = tiles[current_tile].tile;
-            tiles[current_tile].tile = zoomSurface(tmp, (double)TILE_W/tmp->w, (double)TILE_H/tmp->h, SMOOTHING_OFF);
+            tiles[current_tile].tile = zoomSurface(tmp, (double)tile_w_/tmp->w, (double)tile_h_/tmp->h, SMOOTHING_OFF);
             SDL_FreeSurface(tmp);
         }
 

@@ -232,10 +232,10 @@ void WSdraw(SDL_Surface *where)
         {
             SDL_Rect rect;
             if(!(y&1))
-                rect.x = (x*TILE_W)+ws_offsetx;
+                rect.x = (x*tile_w_)+ws_offsetx;
             else
-                rect.x = TILE_W/2+(x*TILE_W)+ws_offsetx;
-            rect.y = (y*(TILE_H/2))+ws_offsety;
+                rect.x = tile_w_/2+(x*tile_w_)+ws_offsetx;
+            rect.y = (y*(tile_h_/2))+ws_offsety;
             if(location.tiles[y*location.width+x] < n_tiles && location.tiles[y*location.width+x] >= 0)
                 SDL_BlitSurface(tiles[location.tiles[y*location.width+x]].tile,
                                 NULL, where, &rect);
@@ -271,7 +271,7 @@ void WSresize(unsigned int w, unsigned int h)
     location.tiles = space;
 }
 
-#define CLCK_AREA 8
+#define CLCK_AREA (tile_h_/4)
 static int at_x = 0;
 static int at_y = 0;
 
@@ -283,10 +283,10 @@ void WSloop(SDL_Event *event)
         for(y = 0; y < location.heigth; y++)
         {
 
-#define CLCK_RECT_X1 ((!(y&1)) ? x*(TILE_W)+ws_offsetx+CLCK_AREA : x*(TILE_W)+ws_offsetx+CLCK_AREA+TILE_W/2)
-#define CLCK_RECT_X2 ((!(y&1)) ? x*(TILE_W)+ws_offsetx+TILE_W-CLCK_AREA : x*(TILE_W)+ws_offsetx+TILE_W-CLCK_AREA+TILE_W/2)
-#define CLCK_RECT_Y1 y*(TILE_H/2)+ws_offsety+CLCK_AREA
-#define CLCK_RECT_Y2 y*(TILE_H/2)+ws_offsety+TILE_H-CLCK_AREA
+#define CLCK_RECT_X1 ((!(y&1)) ? x*(tile_w_)+ws_offsetx+CLCK_AREA : x*(tile_w_)+ws_offsetx+CLCK_AREA+tile_w_/2)
+#define CLCK_RECT_X2 ((!(y&1)) ? x*(tile_w_)+ws_offsetx+tile_w_-CLCK_AREA : x*(tile_w_)+ws_offsetx+tile_w_-CLCK_AREA+tile_w_/2)
+#define CLCK_RECT_Y1 y*(tile_h_/2)+ws_offsety+CLCK_AREA
+#define CLCK_RECT_Y2 y*(tile_h_/2)+ws_offsety+tile_h_-CLCK_AREA
 
             if(event->button.x > CLCK_RECT_X1 && event->button.x < CLCK_RECT_X2 &&
                event->button.y > CLCK_RECT_Y1 && event->button.y < CLCK_RECT_Y2)
