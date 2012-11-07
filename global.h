@@ -7,8 +7,8 @@
     #define WORKDIR         "data/"
 #endif
 
-#define ICN_ERASE       "/usr/share/icons/default.kde4/32x32/actions/edit-clear.png"
-#define FONT_FN         "/usr/share/fonts/truetype/ttf-droid/DroidSansMono.ttf"
+#define ICN_ERASE       WORKDIR"edit-clear.png"
+#define FONT_FN         WORKDIR"DroidSansMono.ttf"
 #define SCRW            960
 #define SCRH            512
 #define TILE_W          48

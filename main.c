@@ -20,7 +20,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1.06_alpha.2"
+#define VERSION_STR "0.1.07_alpha"
 
 enum
 {
@@ -69,7 +69,10 @@ int init()
     {
         ui_font = TTF_OpenFont(FONT_FN, UI_FONT_SIZE);
         if(ui_font == NULL)
-            printf("Warning: font file has failed to load.\n");
+        {
+            printf("Fatal: font file has failed to load.\n");
+            return 1;
+        }
     }
 
     buttons_total = TOOLBUTTON;
