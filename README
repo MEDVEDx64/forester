@@ -8,7 +8,7 @@
 	(Внимание! Названия пакетов могут быть иными в различных дистрибутивах).
 
 Для запуска сборки используйте make. Если случился фейл (shit happens sometimes), попробуйте
-собрать вручную: gcc *.c -o forester -s -O2 -pthread -ldl -lm -lSDL -lSDLmain -lSDL_image -lSDL_gfx -lSDL_ttf.
+собрать вручную: gcc *.c -o forester -s -O2 -pthread -ldl -lm -lSDL -lSDLmain -lSDL_image -lSDL_gfx -lSDL_ttf -lxml2.
 
 Вменяемых способов установки в систему пока ещё нет, так что проще будет запускать forester прямо из
 текущей директории.
