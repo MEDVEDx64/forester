@@ -22,7 +22,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1.08_alpha"
+#define VERSION_STR "0.1.08_alpha.1"
 
 unsigned short scr_w_ = SCRW_D;
 unsigned short scr_h_ = SCRH_D;
@@ -323,6 +323,9 @@ int main(int argc, char *argv[])
             {
                 case SDL_KEYDOWN: keyst[ev.key.keysym.sym] = KST_DOWN; break;
                 case SDL_KEYUP: keyst[ev.key.keysym.sym] = KST_UP; break;
+
+                /* Also we looking for quit signals */
+                case SDL_QUIT: is_running = 0;
             }
         }
 
@@ -461,5 +464,7 @@ int main(int argc, char *argv[])
     }
 
     printf("Shuttin` down.\n");
+
+    SDL_Quit();
     return 0;
 }
