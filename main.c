@@ -22,7 +22,7 @@
 #include "global.h"
 #include "workspace.h"
 
-#define VERSION_STR "0.1.07_alpha.1"
+#define VERSION_STR "0.1.08_alpha"
 
 unsigned short scr_w_ = SCRW_D;
 unsigned short scr_h_ = SCRH_D;

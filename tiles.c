@@ -87,12 +87,14 @@ file have something wrong aboard (comments, etc.). Proceeding may result in faul
             }
         }
 
-        if(tiles[current_tile].tile->w != tile_w_ || tiles[current_tile].tile->h != tile_h_)
-        {
-            SDL_Surface *tmp = tiles[current_tile].tile;
-            tiles[current_tile].tile = zoomSurface(tmp, (double)tile_w_/tmp->w, (double)tile_h_/tmp->h, SMOOTHING_OFF);
-            SDL_FreeSurface(tmp);
-        }
+        tiles[current_tile].tile_noscale = tiles[current_tile].tile;
+
+//        if(tiles[current_tile].tile_noscale->w != tile_w_ || tiles[current_tile].tile_noscale->h != tile_h_)
+//        {
+            tiles[current_tile].tile = zoomSurface(tiles[current_tile].tile_noscale,
+                                                   (double)tile_w_/tiles[current_tile].tile_noscale->w,
+                                                   (double)tile_h_/tiles[current_tile].tile_noscale->h, SMOOTHING_OFF);
+//        }
 
         current_tile++;
         recieved++;

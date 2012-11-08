@@ -13,6 +13,7 @@ typedef struct
     char *filename;
     void *dummy;
     SDL_Surface *tile;
+    SDL_Surface *tile_noscale;
 }
 tilerecord_t;
 

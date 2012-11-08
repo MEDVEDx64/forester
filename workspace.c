@@ -226,21 +226,27 @@ void WSdraw(SDL_Surface *where)
     if(location.tiles == NULL) return;
 
     int x, y;
-    for(x = 0; x < location.width; x++)
+    for(y = 0; y < location.heigth; y++)
     {
-        for(y = 0; y < location.heigth; y++)
+        for(x = 0; x < location.width; x++)
         {
             SDL_Rect rect;
-            if(!(y&1))
-                rect.x = (x*tile_w_)+ws_offsetx;
-            else
-                rect.x = tile_w_/2+(x*tile_w_)+ws_offsetx;
-            rect.y = (y*(tile_h_/2))+ws_offsety;
-            if(location.tiles[y*location.width+x] < n_tiles && location.tiles[y*location.width+x] >= 0)
-                SDL_BlitSurface(tiles[location.tiles[y*location.width+x]].tile,
+            if(location.tiles[y*location.width+x] < n_tiles && location.tiles[y*location.width+x] >= 0) {
+                if(y%2)
+                    rect.x = tile_w_/2+(x*tile_w_)+ws_offsetx - (tiles[location.tiles[y*location.width+x]].tile_noscale->w - tile_w_) / 2;
+                else
+                    rect.x = (x*tile_w_)+ws_offsetx - (tiles[location.tiles[y*location.width+x]].tile_noscale->w - tile_w_) / 2;
+                rect.y = (y*(tile_h_/2))+ws_offsety - (tiles[location.tiles[y*location.width+x]].tile_noscale->h - tile_h_);
+                SDL_BlitSurface(tiles[location.tiles[y*location.width+x]].tile_noscale,
                                 NULL, where, &rect);
+            }
             else
             {
+                if(!(y&1))
+                    rect.x = (x*tile_w_)+ws_offsetx;
+                else
+                    rect.x = tile_w_/2+(x*tile_w_)+ws_offsetx;
+                rect.y = (y*(tile_h_/2))+ws_offsety;
                 SDL_BlitSurface(nil_tile, NULL, where, &rect);
             }
         }
